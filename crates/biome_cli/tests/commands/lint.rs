@@ -815,7 +815,7 @@ fn fs_error_dereferenced_symlink() {
     }
 
     let result = run_cli(
-        DynRef::Owned(Box::new(OsFileSystem)),
+        DynRef::Owned(Box::new(OsFileSystem::new())),
         &mut console,
         Args::from([("lint"), root_path.display().to_string().as_str()].as_slice()),
     );
@@ -859,7 +859,7 @@ fn fs_error_infinite_symlink_expansion_to_dirs() {
     }
 
     let result = run_cli(
-        DynRef::Owned(Box::new(OsFileSystem)),
+        DynRef::Owned(Box::new(OsFileSystem::new())),
         &mut console,
         Args::from([("lint"), (root_path.display().to_string().as_str())].as_slice()),
     );
@@ -1084,7 +1084,7 @@ fn fs_files_ignore_symlink() {
     }
 
     let result = run_cli(
-        DynRef::Owned(Box::new(OsFileSystem)),
+        DynRef::Owned(Box::new(OsFileSystem::new())),
         &mut console,
         Args::from(
             [
@@ -2146,6 +2146,42 @@ fn should_not_enable_nursery_rules() {
     assert_cli_snapshot(SnapshotPayload::new(
         module_path!(),
         "should_not_enable_nursery_rules",
+        fs,
+        console,
+        result,
+    ));
+}
+
+#[test]
+fn check_with_errored_manifest() {
+    let mut fs = MemoryFileSystem::new_read_only();
+    let mut console = BufferConsole::default();
+
+    let file_path = Path::new("check.js");
+    fs.insert(file_path.into(), FORMATTED.as_bytes());
+
+    let config = Path::new("rome.json");
+    fs.insert(config.into(), "{}".as_bytes());
+
+    let manifest = Path::new("package.json");
+    fs.insert(
+        manifest.into(),
+        r#"{
+    	"name": 1033
+    }"#
+        .as_bytes(),
+    );
+
+    let result = run_cli(
+        DynRef::Borrowed(&mut fs),
+        &mut console,
+        Args::from(&[("check"), file_path.as_os_str().to_str().unwrap()]),
+    );
+    assert!(result.is_err(), "run_cli returned {result:?}");
+
+    assert_cli_snapshot(SnapshotPayload::new(
+        module_path!(),
+        "check_with_errored_manifest",
         fs,
         console,
         result,
