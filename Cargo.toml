@@ -63,6 +63,7 @@ biome_js_transform           = { path = "./crates/biome_js_transform" }
 biome_js_unicode_table       = { path = "./crates/biome_js_unicode_table" }
 biome_lsp                    = { path = "./crates/biome_lsp" }
 biome_migrate                = { path = "./crates/biome_migrate" }
+biome_project                = { path = "./crates/biome_project" }
 biome_service                = { path = "./crates/biome_service" }
 biome_suppression            = { path = "./crates/biome_suppression" }
 biome_test_utils             = { path = "./crates/biome_test_utils" }
